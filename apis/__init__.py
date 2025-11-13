@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+
+# @Author: 胖胖很瘦
+# @Date: 2025-11-10 11:08:50
+# @LastEditors: 胖胖很瘦
+# @LastEditTime: 2025-11-11 16:18:58
+
+from . import chat, dataset, files, documents, blocks, tags, models, sessions, feedback, textgen, workflows, app_config
+
+__all__ = [
+    "chat",
+    "dataset",
+    "files",
+    "documents",
+    "blocks",
+    "tags",
+    "models",
+    "sessions",
+    "feedback",
+    "textgen",
+    "workflows",
+    "app_config",
+]
+"""
+https://docs.dify.ai/api-reference/对话消息/发送对话消息
+https://docs.dify.ai/api-reference/对话消息/停止响应
+https://docs.dify.ai/api-reference/对话消息/获取下一轮建议问题列表
+https://docs.dify.ai/api-reference/文件操作/上传文件
+https://docs.dify.ai/api-reference/文件操作/文件预览
+https://docs.dify.ai/api-reference/消息反馈/消息反馈（点赞）
+https://docs.dify.ai/api-reference/消息反馈/获取app的消息点赞和反馈
+https://docs.dify.ai/api-reference/会话管理/获取会话历史消息
+https://docs.dify.ai/api-reference/会话管理/获取会话列表
+https://docs.dify.ai/api-reference/会话管理/删除会话
+https://docs.dify.ai/api-reference/会话管理/会话重命名
+https://docs.dify.ai/api-reference/会话管理/获取对话变量
+https://docs.dify.ai/api-reference/语音与文字转换/语音转文字
+https://docs.dify.ai/api-reference/语音与文字转换/文字转语音
+https://docs.dify.ai/api-reference/应用配置/获取应用基本信息
+https://docs.dify.ai/api-reference/应用配置/获取应用参数
+https://docs.dify.ai/api-reference/应用配置/获取应用meta信息
+https://docs.dify.ai/api-reference/应用配置/获取应用-webapp-设置
+https://docs.dify.ai/api-reference/对话消息/发送对话消息
+https://docs.dify.ai/api-reference/对话消息/停止响应
+https://docs.dify.ai/api-reference/对话消息/获取下一轮建议问题列表
+https://docs.dify.ai/api-reference/文件操作/上传文件
+https://docs.dify.ai/api-reference/文件操作/文件预览
+https://docs.dify.ai/api-reference/消息反馈/消息反馈（点赞）
+https://docs.dify.ai/api-reference/消息反馈/获取app的消息点赞和反馈
+https://docs.dify.ai/api-reference/会话管理/获取会话历史消息
+https://docs.dify.ai/api-reference/会话管理/获取会话列表
+https://docs.dify.ai/api-reference/会话管理/删除会话
+https://docs.dify.ai/api-reference/会话管理/会话重命名
+https://docs.dify.ai/api-reference/会话管理/获取对话变量
+https://docs.dify.ai/api-reference/语音与文字转换/语音转文字
+https://docs.dify.ai/api-reference/语音与文字转换/文字转语音
+https://docs.dify.ai/api-reference/应用配置/获取应用基本信息
+https://docs.dify.ai/api-reference/应用配置/获取应用参数
+https://docs.dify.ai/api-reference/应用配置/获取应用meta信息
+https://docs.dify.ai/api-reference/应用配置/获取应用-webapp-设置
+https://docs.dify.ai/api-reference/标注管理/获取标注列表
+https://docs.dify.ai/api-reference/标注管理/创建标注
+https://docs.dify.ai/api-reference/标注管理/更新标注
+https://docs.dify.ai/api-reference/标注管理/删除标注
+https://docs.dify.ai/api-reference/标注管理/标注回复初始设置
+https://docs.dify.ai/api-reference/标注管理/查询标注回复初始设置任务状态
+https://docs.dify.ai/api-reference/工作流执行/执行-workflow
+https://docs.dify.ai/api-reference/工作流执行/获取workflow执行情况
+https://docs.dify.ai/api-reference/工作流执行/停止响应-workflow-task
+https://docs.dify.ai/api-reference/工作流执行/获取-workflow-日志
+https://docs.dify.ai/api-reference/文件操作-workflow/上传文件-workflow
+https://docs.dify.ai/api-reference/应用配置-workflow/获取应用基本信息-workflow
+https://docs.dify.ai/api-reference/应用配置-workflow/获取应用参数-workflow
+https://docs.dify.ai/api-reference/应用配置-workflow/获取应用-webapp-设置-workflow
+https://docs.dify.ai/api-reference/文本生成/发送消息
+https://docs.dify.ai/api-reference/文本生成/停止响应
+https://docs.dify.ai/api-reference/文件管理/上传文件
+https://docs.dify.ai/api-reference/反馈/消息反馈（点赞）
+https://docs.dify.ai/api-reference/反馈/获取应用反馈列表
+https://docs.dify.ai/api-reference/语音服务/文字转语音
+https://docs.dify.ai/api-reference/应用设置/获取应用基本信息
+https://docs.dify.ai/api-reference/应用设置/获取应用参数
+https://docs.dify.ai/api-reference/应用设置/获取应用-webapp-设置
+https://docs.dify.ai/api-reference/标注管理/获取标注列表
+https://docs.dify.ai/api-reference/标注管理/创建标注
+https://docs.dify.ai/api-reference/标注管理/更新标注
+https://docs.dify.ai/api-reference/标注管理/删除标注
+https://docs.dify.ai/api-reference/标注管理/标注回复初始设置
+https://docs.dify.ai/api-reference/标注管理/查询标注回复初始设置任务状态
+https://docs.dify.ai/api-reference/数据集/获取知识库列表
+https://docs.dify.ai/api-reference/数据集/创建空知识库
+https://docs.dify.ai/api-reference/数据集/获取知识库详情
+https://docs.dify.ai/api-reference/数据集/删除知识库
+https://docs.dify.ai/api-reference/数据集/更新知识库
+https://docs.dify.ai/api-reference/数据集/从知识库检索块-测试检索
+https://docs.dify.ai/api-reference/文档/从文本创建文档
+https://docs.dify.ai/api-reference/文档/从文件创建文档
+https://docs.dify.ai/api-reference/文档/用文本更新文档
+https://docs.dify.ai/api-reference/文档/用文件更新文档
+https://docs.dify.ai/api-reference/文档/获取文档嵌入状态（进度）
+https://docs.dify.ai/api-reference/文档/获取文档详情
+https://docs.dify.ai/api-reference/文档/删除文档
+https://docs.dify.ai/api-reference/文档/获取知识库的文档列表
+https://docs.dify.ai/api-reference/文档/更新文档状态
+https://docs.dify.ai/api-reference/文档块/从文档获取块
+https://docs.dify.ai/api-reference/文档块/向文档添加块
+https://docs.dify.ai/api-reference/文档块/获取文档中的块详情
+https://docs.dify.ai/api-reference/文档块/更新文档中的块
+https://docs.dify.ai/api-reference/文档块/删除文档中的块
+https://docs.dify.ai/api-reference/文档块/获取子块
+https://docs.dify.ai/api-reference/文档块/创建子块
+https://docs.dify.ai/api-reference/文档块/删除子块
+https://docs.dify.ai/api-reference/文档块/更新子块
+https://docs.dify.ai/api-reference/模型/获取可用的嵌入模型
+https://docs.dify.ai/api-reference/元数据和标签/获取知识库类型标签
+https://docs.dify.ai/api-reference/元数据和标签/创建新的知识库类型标签
+https://docs.dify.ai/api-reference/元数据和标签/删除知识库类型标签
+https://docs.dify.ai/api-reference/元数据和标签/修改知识库类型标签名称
+https://docs.dify.ai/api-reference/元数据和标签/将数据集绑定到知识库类型标签
+https://docs.dify.ai/api-reference/元数据和标签/解绑数据集和知识库类型标签
+https://docs.dify.ai/api-reference/元数据和标签/查询绑定到数据集的标签
+"""

@@ -1,0 +1,99 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pydify_plus"
+description = "A Python client library for interacting with the Dify API (renamed pydify_plus)"
+version = "0.1.0"
+authors = [
+    {name = "胖胖很瘦", email = "your-email@example.com"},
+]
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["dify", "api", "client", "ai", "chat", "workflow"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.24.0,<1.0.0",
+    "httpx-sse>=0.4.0,<1.0.0",
+    "anyio>=3.0.0,<5.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0,<8.0.0",
+    "pytest-asyncio>=0.21.0,<1.0.0",
+    "pytest-cov>=4.0.0,<5.0.0",
+    "black>=23.0.0,<25.0.0",
+    "flake8>=6.0.0,<8.0.0",
+    "mypy>=1.0.0,<2.0.0",
+    "pre-commit>=3.0.0,<4.0.0",
+]
+examples = [
+    "python-dotenv>=1.0.0,<2.0.0",
+    "fastapi>=0.100.0,<1.0.0",
+    "uvicorn[standard]>=0.23.0,<1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/dify-client"
+Documentation = "https://github.com/your-username/dify-client#readme"
+Repository = "https://github.com/your-username/dify-client"
+Issues = "https://github.com/your-username/dify-client/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pydify_plus"]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --strict-markers --strict-config"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.run]
+source = ["pydify_plus"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
