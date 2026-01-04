@@ -3,20 +3,19 @@
 # @Author: 胖胖很瘦
 # @Date: 2025-11-10 11:09:03
 # @LastEditors: 胖胖很瘦
-# @LastEditTime: 2025-11-10 18:16:16
+# @LastEditTime: 2025-11-26 10:01:57
 
 from typing import TYPE_CHECKING, List, AsyncIterator, Iterator
 from httpx_sse import aconnect_sse, connect_sse, ServerSentEvent
 
 from ..config import API_ENDPOINTS
+from .base import BaseApi
 
 if TYPE_CHECKING:
     from ..base import BaseClient
 
-class ChatApi:
-    def __init__(self, client: "BaseClient"):
-        self._client = client
-
+class ChatApi(BaseApi):
+    API_KEY_NAME = "DIFY_APP_KEY"
     async def create_chat_message(self, *, model: str, messages: list, **kwargs) -> dict:
         """Create a new chat message.
 
@@ -29,7 +28,7 @@ class ChatApi:
             The API response as a dictionary.
         """
         payload = {"model": model, "messages": messages, **kwargs}
-        return await self._client._arequest("POST", API_ENDPOINTS["CHAT_MESSAGES_CREATE"], json=payload)
+        return await self.request("POST", API_ENDPOINTS["CHAT_MESSAGES_CREATE"], json=payload)
 
     async def get_chat_message(self, message_id: str) -> dict:
         """Get a chat message by its ID.
@@ -40,9 +39,9 @@ class ChatApi:
         Returns:
             The API response as a dictionary.
         """
-        return await self._client._arequest("GET", API_ENDPOINTS["CHAT_MESSAGES_GET"].format(conversation_id=message_id))
+        return await self.request("GET", API_ENDPOINTS["CHAT_MESSAGES_GET"].format(conversation_id=message_id))
 
-    async def upload_file_bytes(self, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", purpose: str | None = None) -> dict:
+    async def upload_file_bytes(self, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", user: str = "abc-123") -> dict:
         """Upload a file to be used in chat (file-based conversations).
 
         Args:
@@ -55,25 +54,55 @@ class ChatApi:
             The API response as a dictionary containing file metadata (e.g., file_id).
         """
         files = {"file": (file_name, content, content_type)}
-        params = {"purpose": purpose} if purpose else None
-        return await self._client._arequest("POST", API_ENDPOINTS["FILES_UPLOAD"], files=files, params=params)
+        payload = { "user": user }
+        return await self.request("POST", API_ENDPOINTS["FILES_UPLOAD"], files=files, json=payload)
 
-    async def upload_file_path(self, *, file_path: str, purpose: str | None = None) -> dict:
+    async def preview_file(self, file_id: str, as_attachment: bool = False) -> dict[str, any]:
+        """
+        获取文件预览信息。
+
+        Args:
+            file_id: 文件 ID。
+
+        Returns:
+            文件预览信息字典。
+        """
+        querystring = {"as_attachment": as_attachment}
+
+        return await self.request(
+            "GET",
+            API_ENDPOINTS["FILES_PREVIEW"].format(file_id=file_id),
+            params=querystring
+        )
+
+    async def upload_file_path(self, *, file_path: str, user: str = "abc-123") -> dict:
         """Upload a local file to be used in chat.
 
         Args:
             file_path: Local file path to upload.
-            purpose: Optional file purpose (e.g., "conversation").
+            user: Optional user ID (e.g., "abc-123").
 
         Returns:
             The API response as a dictionary containing file metadata (e.g., file_id).
         """
         file_name = file_path.split("/")[-1]
         files = {"file": (file_name, open(file_path, "rb"))}
-        params = {"purpose": purpose} if purpose else None
-        return await self._client._arequest("POST", API_ENDPOINTS["FILES_UPLOAD"], files=files, params=params)
+        payload = { "user": user }
+        return await self.request("POST", API_ENDPOINTS["FILES_UPLOAD"], files=files, json=payload)
 
-    async def stream_chat_message(self, *, model: str, messages: list, **kwargs) -> AsyncIterator[ServerSentEvent]:
+    async def stop_chat_message(self, task_id: str, user: str = "abc-123") -> dict:
+        """Stop a streaming chat message.
+
+        Args:
+            task_id: The ID of the task to stop.
+
+        Returns:
+            The API response as a dictionary.
+        """
+        payload = {"user": user}
+        return await self.request("POST", API_ENDPOINTS["CHAT_MESSAGES_STOP"].format(task_id=task_id), json=payload)
+
+    async def stream_chat_message(self, *, messages: list, response_mode: str = "streaming", user: str = "abc-123", inputs: dict = None, **kwargs) -> AsyncIterator[ServerSentEvent]:
         """Create a streaming chat message using Server-Sent Events.
 
         Args:
@@ -84,19 +113,28 @@ class ChatApi:
         Yields:
             ServerSentEvent objects from the streaming response.
         """
-        payload = {"model": model, "messages": messages, "stream": True, **kwargs}
-        
-        async with aconnect_sse(
-            self._client._cli,
-            "POST",
-            API_ENDPOINTS["CHAT_MESSAGES_STREAM"],
-            json=payload,
-            timeout=self._client.timeout
-        ) as event_source:
-            async for event in event_source.aiter_sse():
-                yield event
+        # payload = {"response_mode": model, "messages": messages, "stream": True, **kwargs}
+        inputs = inputs or {}
+        payload = {
+            "inputs": inputs,
+            "query": messages,
+            "response_mode": response_mode,
+            # "conversation_id": "101b4c97-fc2e-463c-90b1-5261a4cdcafb",
+            "user": user,
+            # "files": [
+            #     {
+            #         "type": "image",
+            #         "transfer_method": "remote_url",
+            #         "url": "https://cloud.dify.ai/logo/logo-site.png"
+            #     }
+            # ],
+            "auto_generate_name": True
+        }
+        payload.update(kwargs)
+        async for event in self.stream_request("POST", API_ENDPOINTS["CHAT_MESSAGES_STREAM"], json=payload, api_key_name=self.API_KEY_NAME):
+            yield event
 
-    def stream_chat_message_sync(self, *, model: str, messages: list, **kwargs) -> Iterator[ServerSentEvent]:
+    def chat_message(self, *, messages: list, response_mode: str = "streaming", user: str = "abc-123", **kwargs) -> Iterator[ServerSentEvent]:
         """Create a streaming chat message using Server-Sent Events (synchronous version).
 
         Args:
@@ -107,14 +145,21 @@ class ChatApi:
         Yields:
             ServerSentEvent objects from the streaming response.
         """
-        payload = {"model": model, "messages": messages, "stream": True, **kwargs}
-        
-        with connect_sse(
-            self._client._async_client._cli,
-            "POST",
-            API_ENDPOINTS["CHAT_MESSAGES_STREAM"],
-            json=payload,
-            timeout=self._client.timeout
-        ) as event_source:
-            for event in event_source.iter_sse():
-                yield event
+        # payload = {"response_mode": model, "messages": messages, "stream": True, **kwargs}
+        payload = {
+            "inputs": { "name": "dify" },
+            "query": messages,
+            "response_mode": response_mode,
+            # "conversation_id": "101b4c97-fc2e-463c-90b1-5261a4cdcafb",
+            "user": user,
+            # "files": [
+            #     {
+            #         "type": "image",
+            #         "transfer_method": "remote_url",
+            #         "url": "https://cloud.dify.ai/logo/logo-site.png"
+            #     }
+            # ],
+            "auto_generate_name": True
+        }
+        for event in self.stream_request("POST", API_ENDPOINTS["CHAT_MESSAGES_STREAM"], json=payload, api_key_name=self.API_KEY_NAME):
+            yield event

@@ -3,23 +3,22 @@
 # @Author: 胖胖很瘦
 # @Date: 2025-11-11
 # @LastEditors: 胖胖很瘦
-# @LastEditTime: 2025-11-13 14:46:39
+# @LastEditTime: 2025-12-18 11:42:24
 import json as JSON
 from typing import Any, Dict, Optional
+from .base import BaseApi
 
 from ..config import API_ENDPOINTS
 
 
-class DocumentsApi:
+class DocumentsApi(BaseApi):
     """
     Dify 文档管理 API 封装。
 
     面向知识库（数据集）下的文档增删改查与状态查询。
     支持从文本或文件创建/更新文档。
     """
-
-    def __init__(self, client):
-        self.client = client
+    API_KEY_NAME = "DIFY_DATASET_KEY"
 
     async def create_from_text(self, dataset_id: str, *, text: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -39,7 +38,7 @@ class DocumentsApi:
             payload["title"] = title
         if metadata:
             payload["metadata"] = metadata
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_CREATE_TEXT"].format(dataset_id=dataset_id),
             json=payload,
@@ -64,77 +63,56 @@ class DocumentsApi:
             data["title"] = title
         if metadata:
             data["metadata"] = metadata
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_CREATE_FILE"].format(dataset_id=dataset_id),
             files=files,
             json=data if data else None,
         )
 
-    async def create_from_file_bytes(self, dataset_id: str, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def create_from_file_bytes(self, dataset_id: str, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", doc_language: str = "Chinese Simplified", remove_extra_spaces: bool = True, remove_urls_emails: bool = True, segmentation_max_tokens: int = 520, segmentation_chunk_overlap: int = 50, metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         """
         通过文件创建文档（内存字节流）。
 
         Args:
             dataset_id: 知识库 ID。
-            file_name: 文件名。
-            content: 文件字节内容。
+            file: 上传的异步文件对象。
             content_type: MIME 类型，默认 application/octet-stream。
-            title: 文档标题（可选）。
+            doc_language = "Chinese Simplified"
+            remove_extra_spaces = True
+            remove_urls_emails = True
+            segmentation_max_tokens = 520
+            segmentation_chunk_overlap = 50
             metadata: 文档元数据（可选）。
 
         Returns:
             创建后的文档信息字典。
         """
         files = {"file": (file_name, content, content_type)}
-        # data: Dict[str, Any] = {"indexing_technique":"high_quality","process_rule":{"rules":{"pre_processing_rules":[{"id":"remove_extra_spaces","enabled":True},{"id":"remove_urls_emails","enabled":True}],"segmentation":{"separator":"###","max_tokens":500}},"mode":"custom"}}
-        # if title:
-        #     data["title"] = title
-        # if metadata:
-        #     data["metadata"] = metadata
         document_data = {
-            "indexing_technique": "high_quality",  # or "economy"
-            "process_rule": {
-                "mode": "automatic"  # or "custom", "hierarchical"
-                # Add other rules if mode is "custom" or "hierarchical"
-            }
-        }
-        document_data = {"indexing_technique":"high_quality","process_rule":{"rules":{"pre_processing_rules":[{"id":"remove_extra_spaces","enabled":True},{"id":"remove_urls_emails","enabled":True}],"segmentation":{"separator":"###","max_tokens":500}},"mode":"custom"}}
-        document_data = {
-            # "data_source": {
-            #     "type": "upload_file",
-            #     "info_list": {
-            #         "data_source_type": "upload_file",
-            #         "file_info_list": {
-            #             "file_ids": [
-            #                 "75c59c38-b7f3-4367-935e-14d158e9dbac"
-            #             ]
-            #         }
-            #     }
-            # },
             "indexing_technique": "economy",
             "process_rule": {
                 "rules": {
                     "pre_processing_rules": [
                         {
                             "id": "remove_extra_spaces",
-                            "enabled": True
+                            "enabled": remove_extra_spaces,
                         },
                         {
                             "id": "remove_urls_emails",
-                            "enabled": True
+                            "enabled": remove_urls_emails,
                         }
                     ],
                     "segmentation": {
                         "separator": "\n\n",
-                        "max_tokens": 520,
-                        "chunk_overlap": 50
+                        "max_tokens": segmentation_max_tokens,
+                        "chunk_overlap": segmentation_chunk_overlap
                     }
                 },
                 "mode": "custom"
             },
             "doc_form": "text_model",
-            "doc_language": "Chinese Simplified",
+            "doc_language": doc_language,
             "retrieval_model": {
                 "search_method": "hybrid_search",
                 "reranking_enable": False,
@@ -161,13 +139,14 @@ class DocumentsApi:
             "embedding_model": "",
             "embedding_model_provider": ""
         }
+        if metadata and isinstance(metadata, dict):
+            document_data.update(metadata)
         data = {"data": JSON.dumps(document_data)}
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_CREATE_FILE"].format(dataset_id=dataset_id),
             files=files,
-            data=data if data else None,
-            # data=data if data else None,
+            data=data
         )
 
     async def update_text(self, dataset_id: str, document_id: str, *, text: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -189,7 +168,7 @@ class DocumentsApi:
             payload["title"] = title
         if metadata:
             payload["metadata"] = metadata
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_UPDATE_TEXT"].format(dataset_id=dataset_id, document_id=document_id),
             json=payload,
@@ -215,7 +194,7 @@ class DocumentsApi:
             data["title"] = title
         if metadata:
             data["metadata"] = metadata
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(dataset_id=dataset_id, document_id=document_id),
             files=files,
@@ -244,27 +223,27 @@ class DocumentsApi:
             data["title"] = title
         if metadata:
             data["metadata"] = metadata
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(dataset_id=dataset_id, document_id=document_id),
             files=files,
             json=data if data else None,
         )
 
-    async def embedding_status(self, dataset_id: str, document_id: str) -> Dict[str, Any]:
+    async def embedding_status(self, dataset_id: str, batch_id: str) -> Dict[str, Any]:
         """
         获取文档嵌入状态（进度）。
         """
-        return await self.client._arequest(
+        return await self.request(
             "GET",
-            API_ENDPOINTS["DOCUMENTS_EMBED_STATUS"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_EMBED_STATUS"].format(dataset_id=dataset_id, batch_id=document_id),
         )
 
     async def detail(self, dataset_id: str, document_id: str) -> Dict[str, Any]:
         """
         获取文档详情。
         """
-        return await self.client._arequest(
+        return await self.request(
             "GET",
             API_ENDPOINTS["DOCUMENTS_DETAIL"].format(dataset_id=dataset_id, document_id=document_id),
         )
@@ -273,7 +252,7 @@ class DocumentsApi:
         """
         删除文档。
         """
-        return await self.client._arequest(
+        return await self.request(
             "DELETE",
             API_ENDPOINTS["DOCUMENTS_DELETE"].format(dataset_id=dataset_id, document_id=document_id),
         )
@@ -287,7 +266,7 @@ class DocumentsApi:
             params["page"] = page
         if limit is not None:
             params["limit"] = limit
-        return await self.client._arequest(
+        return await self.request(
             "GET",
             API_ENDPOINTS["DOCUMENTS_LIST"].format(dataset_id=dataset_id),
             params=params or None,
@@ -301,7 +280,7 @@ class DocumentsApi:
             status: 文档状态，如 enabled/disabled 等。
         """
         payload = {"status": status}
-        return await self.client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DOCUMENTS_UPDATE_STATUS"].format(dataset_id=dataset_id, document_id=document_id),
             json=payload,
