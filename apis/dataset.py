@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING, Optional, Dict, Any, List
 from ..config import API_ENDPOINTS
- 
+from .base import BaseApi
+
 
 if TYPE_CHECKING:
     from ..base import BaseClient
 
-class DatasetApi:
-    def __init__(self, client: "BaseClient"):
-        self._client = client
-
+class DatasetApi(BaseApi):
+    API_KEY_NAME = "DIFY_DATASET_KEY"
     async def create_dataset(self, *, name: str, description: Optional[str] = None, **kwargs) -> dict:
         """Create a new dataset.
 
@@ -21,7 +20,7 @@ class DatasetApi:
             The API response as a dictionary.
         """
         payload = {"name": name, "description": description, **kwargs}
-        return await self._client._arequest("POST", API_ENDPOINTS["DATASETS_CREATE"], json=payload)
+        return await self.request("POST", API_ENDPOINTS["DATASETS_CREATE"], json=payload)
 
     async def list_datasets(self, *, keyword: Optional[str] = None, tag_ids: Optional[List[str]] = None, page: int = 1, limit: int = 20, include_all: bool = False) -> dict:
         """List datasets with optional filters.
@@ -41,7 +40,7 @@ class DatasetApi:
             params["keyword"] = keyword
         if tag_ids:
             params["tag_ids"] = tag_ids
-        return await self._client._arequest("GET", API_ENDPOINTS["DATASETS_LIST"], params=params)
+        return await self.request("GET", API_ENDPOINTS["DATASETS_LIST"], params=params)
 
     async def get_dataset(self, *, dataset_id: str) -> dict:
         """Get dataset detail by ID.
@@ -52,7 +51,7 @@ class DatasetApi:
         Returns:
             Dataset detail as a dictionary.
         """
-        return await self._client._arequest("GET", API_ENDPOINTS["DATASET_DETAIL"].format(dataset_id=dataset_id))
+        return await self.request("GET", API_ENDPOINTS["DATASET_DETAIL"].format(dataset_id=dataset_id))
 
     async def update_dataset(self, *, dataset_id: str, name: Optional[str] = None, description: Optional[str] = None) -> dict:
         """Update dataset fields.
@@ -70,7 +69,7 @@ class DatasetApi:
             payload["name"] = name
         if description is not None:
             payload["description"] = description
-        return await self._client._arequest("PATCH", API_ENDPOINTS["DATASET_UPDATE"].format(dataset_id=dataset_id), json=payload)
+        return await self.request("PATCH", API_ENDPOINTS["DATASET_UPDATE"].format(dataset_id=dataset_id), json=payload)
 
     async def delete_dataset(self, *, dataset_id: str) -> dict:
         """Delete a dataset by ID.
@@ -81,7 +80,7 @@ class DatasetApi:
         Returns:
             API response as a dictionary.
         """
-        return await self._client._arequest("DELETE", API_ENDPOINTS["DATASET_DELETE"].format(dataset_id=dataset_id))
+        return await self.request("DELETE", API_ENDPOINTS["DATASET_DELETE"].format(dataset_id=dataset_id))
 
     async def search(
         self,
@@ -108,7 +107,7 @@ class DatasetApi:
         payload: Dict[str, Any] = {"query": {"content": query_content}, "top_k": top_k}
         if score_threshold is not None:
             payload["score_threshold"] = score_threshold
-        return await self._client._arequest(
+        return await self.request(
             "POST",
             API_ENDPOINTS["DATASETS_SEARCH"].format(dataset_id=dataset_id),
             json=payload,
