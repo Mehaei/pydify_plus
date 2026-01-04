@@ -3,7 +3,7 @@
 # @Author: 胖胖很瘦
 # @Date: 2025-11-10 11:44:56
 # @LastEditors: 胖胖很瘦
-# @LastEditTime: 2025-11-13 11:38:21
+# @LastEditTime: 2025-11-26 10:31:53
 
 # -*- coding: utf-8 -*-
 
@@ -22,8 +22,8 @@ by the API modules to construct requests.
 API_ENDPOINTS = {
     "CHAT_MESSAGES_CREATE": "/v1/chat-messages",
     "CHAT_MESSAGES_GET": "/v1/chat-messages/{conversation_id}",
-    "CHAT_MESSAGES_STREAM": "/v1/chat-messages/stream",
-    "CHAT_MESSAGES_STOP": "/v1/chat-messages/{message_id}/stop",
+    "CHAT_MESSAGES_STREAM": "/v1/chat-messages", # ✅
+    "CHAT_MESSAGES_STOP": "/v1/chat-messages/{task_id}/stop", # ✅
     "CHAT_SUGGESTED_QUESTIONS": "/v1/chat-messages/{message_id}/suggested-questions",
 
     # Text generation
@@ -31,6 +31,7 @@ API_ENDPOINTS = {
     "COMPLETION_MESSAGES_STREAM": "/v1/completion-messages/stream",
     "COMPLETION_MESSAGES_STOP": "/v1/completion-messages/{message_id}/stop",
 
+    # ✅
     "DATASETS_CREATE": "/v1/datasets",
     "DATASETS_LIST": "/v1/datasets",
     "DATASET_DETAIL": "/v1/datasets/{dataset_id}",
@@ -41,10 +42,13 @@ API_ENDPOINTS = {
 
     # Documents
     "DOCUMENTS_CREATE_TEXT": "/v1/datasets/{dataset_id}/document/create-by-text",
+    # ✅
     "DOCUMENTS_CREATE_FILE": "/v1/datasets/{dataset_id}/document/create-by-file",
     "DOCUMENTS_UPDATE_TEXT": "/v1/datasets/{dataset_id}/documents/{document_id}/update-by-text",
+    # ✅
     "DOCUMENTS_UPDATE_FILE": "/v1/datasets/{dataset_id}/documents/{document_id}/update-by-file",
-    "DOCUMENTS_EMBED_STATUS": "/v1/datasets/{dataset_id}/documents/{document_id}/embedding-status",
+    # ✅
+    "DOCUMENTS_EMBED_STATUS": "/v1/datasets/{dataset_id}/documents/{batch_id}/indexing-status",
     "DOCUMENTS_DETAIL": "/v1/datasets/{dataset_id}/documents/{document_id}",
     "DOCUMENTS_DELETE": "/v1/datasets/{dataset_id}/documents/{document_id}",
     "DOCUMENTS_LIST": "/v1/datasets/{dataset_id}/documents",
@@ -61,6 +65,7 @@ API_ENDPOINTS = {
     "SEGMENT_CHILD_DELETE": "/v1/datasets/{dataset_id}/documents/{document_id}/segments/{segment_id}/children/{child_id}",
     "SEGMENT_CHILD_UPDATE": "/v1/datasets/{dataset_id}/documents/{document_id}/segments/{segment_id}/children/{child_id}",
 
+    # ✅
     # Files
     "FILES_UPLOAD": "/v1/files/upload",
     "FILES_PREVIEW": "/v1/files/{file_id}/preview",
