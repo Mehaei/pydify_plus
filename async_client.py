@@ -3,7 +3,7 @@
 # @Author: 胖胖很瘦
 # @Date: 2025-11-10 11:08:09
 # @LastEditors: 胖胖很瘦
-# @LastEditTime: 2025-11-13 14:10:28
+# @LastEditTime: 2025-12-18 11:42:34
 
 import asyncio
 import json as JSON
@@ -91,6 +91,7 @@ class AsyncClient(BaseClient):
         files: Optional[Any] = None,
         timeout: Optional[float] = None,
         retries: Optional[int] = None,
+        api_key_name: Optional[str] = None
     ) -> dict:
         """Make an asynchronous HTTP request to the Dify API.
 
@@ -122,7 +123,7 @@ class AsyncClient(BaseClient):
             self._cli = httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout)
 
         url = self._build_url(path)
-        headers = self._build_headers()
+        headers = self._build_headers(api_key_name=api_key_name)
         if files:
             headers.pop("Content-Type", None)
 
@@ -133,8 +134,10 @@ class AsyncClient(BaseClient):
 
         for attempt in range(_retries + 1):
             try:
-                self.logger.debug(f"Making {method} request to {url} (attempt {attempt + 1}/{_retries + 1})")
-
+                request_id = self._build_request_id()
+                self.logger.debug(f"{request_id}: Making {method} request to {url} (attempt {attempt + 1}/{_retries + 1})")
+                self.logger.debug(f"{request_id}: Request headers: {headers}")
+                self.logger.debug(f"{request_id}: Request JSON: {json}" if json else f"{request_id}: Request DATA: {data}")
                 resp = await self._cli.request(
                     method,
                     url,
@@ -147,7 +150,7 @@ class AsyncClient(BaseClient):
                 )
 
                 # Extract request ID from headers for better error reporting
-                request_id = resp.headers.get("x-request-id")
+                request_id = resp.headers.get("x-request-id", None) or request_id
 
                 resp.raise_for_status()
 
@@ -202,7 +205,7 @@ class AsyncClient(BaseClient):
         # This should never happen, but just in case
         raise DifyAPIError("Request failed after retries")
 
-    async def stream_request(
+    async def _stream_request(
         self,
         method: str,
         path: str,
@@ -210,11 +213,14 @@ class AsyncClient(BaseClient):
         json: Optional[dict] = None,
         params: Optional[dict] = None,
         timeout: Optional[float] = None,
+        retries: Optional[int] = None,
+        api_key_name: Optional[str] = None
     ) -> AsyncIterator[ServerSentEvent]:
         """Make a streaming request using Server-Sent Events.
         
         This method is used for endpoints that support streaming responses,
-        such as chat completions and text generation.
+        such as chat completions and text generation. It handles authentication,
+        retries, and error handling similar to regular requests.
 
         Args:
             method: HTTP method (GET, POST, etc.).
@@ -222,6 +228,7 @@ class AsyncClient(BaseClient):
             json: JSON payload for the request.
             params: Query parameters.
             timeout: Request timeout in seconds. Overrides client default.
+            retries: Number of retry attempts. Overrides client default.
             
         Yields:
             ServerSentEvent objects from the streaming response.
@@ -229,9 +236,12 @@ class AsyncClient(BaseClient):
         Raises:
             DifyAuthError: If authentication fails (401).
             DifyNotFoundError: If resource not found (404).
+            DifyRateLimitError: If rate limit exceeded (429).
+            DifyValidationError: If request validation fails (422).
+            DifyServerError: For server errors (5xx).
+            DifyConnectionError: For connection errors.
+            DifyTimeoutError: For timeout errors.
             DifyAPIError: For other API errors (4xx, 5xx).
-            httpx.TimeoutException: If request times out.
-            httpx.ConnectError: If connection fails.
 
         Example:
             >>> async for event in client.stream_request( 
@@ -245,17 +255,88 @@ class AsyncClient(BaseClient):
             self._cli = httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout)
 
         url = self._build_url(path)
-        headers = self._build_headers()
+        headers = self._build_headers(api_key_name=api_key_name)
         _timeout = timeout if timeout is not None else self.timeout
+        _retries = retries if retries is not None else self.retries
+        
+        last_exc = None
 
-        async with aconnect_sse(
-            self._cli,
-            method,
-            url,
-            headers=headers,
-            json=json,
-            params=params,
-            timeout=_timeout,
-        ) as event_source:
-            async for event in event_source.aiter_sse():
-                yield event
+        for attempt in range(_retries + 1):
+            try:
+                self.logger.debug(f"Making streaming {method} request to {url} (attempt {attempt + 1}/{_retries + 1})")
+                self.logger.debug(f"Request headers: {headers}")
+                self.logger.debug(f"Request JSON: {json}")
+                async with aconnect_sse(
+                    self._cli,
+                    method,
+                    url,
+                    headers=headers,
+                    json=json,
+                    params=params,
+                    timeout=_timeout,
+                ) as event_source:
+                    self.logger.debug(f"Streaming connection established successfully (attempt {attempt + 1})")
+                    
+                    # Extract request ID from response headers for better error reporting
+                    # Note: For SSE, we get the response after establishing the connection
+                    try:
+                        response = event_source.response
+                        request_id = response.headers.get("x-request-id") if response else None
+                        self.logger.debug(f"Request ID: {request_id}")
+                    except Exception:
+                        request_id = None
+                    
+                    async for event in event_source.aiter_sse():
+                        yield event
+
+                    # If we reach here, the stream completed successfully
+                    self.logger.debug(f"Streaming request completed successfully (attempt {attempt + 1})")
+                    return
+
+            except httpx.TimeoutException as e:
+                last_exc = DifyTimeoutError(f"Streaming request timed out after {_timeout} seconds")
+                self.logger.warning(f"Streaming request timeout (attempt {attempt + 1}/{_retries + 1})")
+
+            except httpx.ConnectError as e:
+                last_exc = DifyConnectionError(f"Connection error: {e}")
+                self.logger.warning(f"Connection error (attempt {attempt + 1}/{_retries + 1}): {e}")
+
+            except httpx.HTTPStatusError as e:
+                request_id = e.response.headers.get("x-request-id") if e.response else None
+            
+                try:
+                    data = e.response.json()
+                except Exception:
+                    data = e.response.text
+        
+                status_code = e.response.status_code
+
+                if status_code == 401:
+                    raise DifyAuthError(status_code=status_code, body=data, request_id=request_id) from e
+                elif status_code == 404:
+                    raise DifyNotFoundError(status_code=status_code, body=data, request_id=request_id) from e
+                elif status_code == 429:
+                    raise DifyRateLimitError(status_code=status_code, body=data, request_id=request_id) from e
+                elif status_code == 422:
+                    raise DifyValidationError(status_code=status_code, body=data, request_id=request_id) from e
+                elif 500 <= status_code < 600:
+                    raise DifyServerError(status_code=status_code, body=data, request_id=request_id) from e
+                else:
+                    raise DifyAPIError(status_code=status_code, body=data, request_id=request_id) from e
+
+            except Exception as e:
+                last_exc = DifyAPIError(f"Unexpected streaming error: {e}")
+                self.logger.warning(f"Unexpected streaming error (attempt {attempt + 1}/{_retries + 1}): {e}")
+
+            # If we have an exception and there are retries left, wait before retrying
+            if last_exc and attempt < _retries:
+                delay = self.retry_backoff_factor * (2 ** attempt)
+                self.logger.info(f"Retrying streaming request in {delay:.2f} seconds...")
+                await asyncio.sleep(delay)
+
+        # If we've exhausted all retries, raise the last exception
+        if last_exc:
+            raise last_exc
+
+        # This should never happen, but just in case
+        raise DifyAPIError("Streaming request failed after retries")
