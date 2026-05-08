@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢您考虑为 Dify Client 项目做出贡献！我们欢迎各种形式的贡献，包括但不限于：
+感谢您考虑为 pydify_plus 项目做出贡献！我们欢迎各种形式的贡献，包括但不限于：
 
 - 报告 bug
 - 提出新功能建议
@@ -16,8 +16,8 @@
 2. **克隆仓库**
 
    ```bash
-   git clone https://github.com/your-username/dify-client.git
-   cd dify-client
+   git clone https://github.com/Mehaei/pydify_plus.git
+   cd pydify_plus
    ```
 
 3. **安装开发依赖**

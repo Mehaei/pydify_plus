@@ -21,7 +21,7 @@ class TestBaseClient:
         )
 
         assert client.base_url == "https://api.dify.ai"
-        assert client.api_key == "test-api-key"
+        assert client.api_key == {"DIFY_API_KEY": "test-api-key"}
         assert client.timeout == 30.0
         assert client.retries == 3
 
@@ -98,6 +98,32 @@ class TestBaseClient:
         )
 
         assert client.base_url == "https://custom.dify.ai"
-        assert client.api_key == "custom-key"
+        assert client.api_key == {"DIFY_API_KEY": "custom-key"}
         assert client.timeout == 60.0
         assert client.retries == 5
+
+    def test_build_headers_fallback_to_default_key(self):
+        client = BaseClient.__new__(BaseClient)
+        client.__init__(
+            base_url="https://api.dify.ai",
+            api_key={
+                "DIFY_API_KEY": "default-key",
+                "DIFY_DATASET_KEY": "dataset-key",
+            }
+        )
+
+        headers = client._build_headers(api_key_name="DIFY_DATASET_KEY")
+        assert headers["Authorization"] == "Bearer dataset-key"
+
+        headers = client._build_headers(api_key_name="DIFY_WORKFLOW_KEY")
+        assert headers["Authorization"] == "Bearer default-key"
+
+    def test_init_without_dify_api_key_uses_any_key_as_fallback(self):
+        client = BaseClient.__new__(BaseClient)
+        client.__init__(
+            base_url="https://api.dify.ai",
+            api_key={
+                "DIFY_DATASET_KEY": "dataset-key",
+            }
+        )
+        assert client.api_key["DIFY_API_KEY"] == "dataset-key"

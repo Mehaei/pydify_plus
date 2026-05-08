@@ -1,16 +1,17 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=70", "setuptools_scm[toml]>=8", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydify_plus"
-description = "A Python client library for interacting with the Dify API (renamed pydify_plus)"
-version = "0.1.0"
+description = "A Python client library for interacting with the Dify API (sync & async)."
+dynamic = ["version"]
 authors = [
-    {name = "胖胖很瘦", email = "your-email@example.com"},
+    {name = "Mehaei", email = "pymehaei@gmail.com"},
 ]
 readme = "README.md"
 license = {text = "MIT"}
+license-files = []
 keywords = ["dify", "api", "client", "ai", "chat", "workflow"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -19,14 +20,12 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "httpx>=0.24.0,<1.0.0",
     "httpx-sse>=0.4.0,<1.0.0",
@@ -51,20 +50,38 @@ examples = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/dify-client"
-Documentation = "https://github.com/your-username/dify-client#readme"
-Repository = "https://github.com/your-username/dify-client"
-Issues = "https://github.com/your-username/dify-client/issues"
+Homepage = "https://mehaei.github.io"
+Documentation = "https://github.com/Mehaei/pydify_plus#readme"
+Repository = "https://github.com/Mehaei/pydify_plus"
+Issues = "https://github.com/Mehaei/pydify_plus/issues"
 
-[tool.hatch.build.targets.wheel]
-packages = ["pydify_plus"]
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pydify_plus*"]
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+tag_regex = "^(?:v)?(?P<version>\\d+\\.\\d+\\.\\d+(?:[-+.]?[^\\s]*)?)$"
+write_to = "pydify_plus/_version.py"
+write_to_template = "__version__ = \"{version}\"\n"
+
+[tool.semantic_release]
+branch = "main"
+commit_parser = "conventional"
+tag_format = "v{version}"
+version_toml = []
+version_variables = []
 
 [tool.black]
 line-length = 88
-target-version = ['py312']
+target-version = ['py310']
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
 
     - name: Run tests
       run: |
-    pytest --cov=pydify_plus --cov-report=xml --cov-report=html
+        pytest --cov=pydify_plus --cov-report=xml --cov-report=html
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -56,15 +56,15 @@ jobs:
 
     - name: Run black
       run: |
-    black --check pydify_plus tests
+        black --check pydify_plus tests
 
     - name: Run flake8
       run: |
-    flake8 pydify_plus tests
+        flake8 pydify_plus tests
 
     - name: Run mypy
       run: |
-    mypy pydify_plus
+        mypy pydify_plus
 
   security:
     runs-on: ubuntu-latest
@@ -84,7 +84,7 @@ jobs:
 
     - name: Run bandit
       run: |
-    bandit -r pydify_plus -f json -o bandit-report.json
+        bandit -r pydify_plus -f json -o bandit-report.json
 
     - name: Run safety
       run: |

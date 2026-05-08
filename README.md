@@ -1,4 +1,4 @@
-# Dify Client
+# pydify_plus
 
 一个用于与 Dify API 交互的 Python 客户端库，提供同步和异步两种接口。
 
@@ -29,14 +29,14 @@
 ### 使用 pip 安装
 
 ```bash
-pip install dify-client
+pip install pydify_plus
 ```
 
 ### 从源码安装
 
 ```bash
-git clone https://github.com/your-username/dify-client.git
-cd dify-client
+git clone https://github.com/Mehaei/pydify_plus.git
+cd pydify_plus
 pip install -e .
 ```
 
@@ -85,6 +85,28 @@ async def main():
         print(response)
 
 asyncio.run(main())
+```
+
+### 多 Key（与本项目后端一致的用法）
+
+在实际项目中，Dify 的不同接口可能使用不同的 Key。本库支持传入一个字典，并按 API 模块自动选择对应 Key（未提供则回退到 `DIFY_API_KEY`）：
+
+- `chat/sessions/app_config/textgen`：`DIFY_APP_KEY`
+- `dataset/documents/blocks/tags`：`DIFY_DATASET_KEY`
+- `workflows`：`DIFY_WORKFLOW_KEY`
+
+```python
+from pydify_plus import AsyncClient
+
+client = AsyncClient(
+    base_url="https://api.dify.ai",
+    api_key={
+        "DIFY_API_KEY": "fallback-key",
+        "DIFY_APP_KEY": "app-key",
+        "DIFY_DATASET_KEY": "dataset-key",
+        "DIFY_WORKFLOW_KEY": "workflow-key",
+    },
+)
 ```
 
 ### 流式响应
@@ -178,11 +200,11 @@ await client.__aexit__(None, None, None)
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/dify-client.git
-cd dify-client
+git clone https://github.com/Mehaei/pydify_plus.git
+cd pydify_plus
 
 # 安装开发依赖
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 
 # 安装预提交钩子
 pre-commit install
@@ -218,6 +240,16 @@ flake8 pydify_plus
 
 欢迎贡献！请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解如何参与项目开发。
 
+## 注意事项（未完全实现/未完全验证）
+
+本库以本项目的实际使用为目标进行封装与完善，并计划作为 PyPI 包对外发布。但由于 Dify API 版本迭代较快、不同部署参数不一致，以下内容可能需要使用者自行验证/调整：
+
+- 部分 API 端点的字段（请求/响应）可能与某些 Dify 版本不完全一致
+- SSE 流式接口在反向代理/网关配置下可能需要额外设置（例如超时、缓冲）
+- 错误码与异常体在不同部署环境可能存在差异
+
+建议使用者以自身 Dify 部署版本的官方文档为准，并在接入前做联调与回归测试。
+
 ## 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](./LICENSE) 文件了解详情。
@@ -225,8 +257,8 @@ flake8 pydify_plus
 ## 支持
 
 - 文档: [查看文档](./docs/)
-- 问题: [GitHub Issues](https://github.com/your-username/dify-client/issues)
-- 讨论: [GitHub Discussions](https://github.com/your-username/dify-client/discussions)
+- 问题: [GitHub Issues](https://github.com/Mehaei/pydify_plus/issues)
+- 讨论: [GitHub Discussions](https://github.com/Mehaei/pydify_plus/discussions)
 
 ## 更新日志
 

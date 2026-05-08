@@ -83,6 +83,6 @@
 
 ## 链接
 
-- [GitHub 仓库](https://github.com/your-username/dify-client)
-- [问题追踪](https://github.com/your-username/dify-client/issues)
-- [文档](https://github.com/your-username/dify-client#readme)
+- [GitHub 仓库](https://github.com/Mehaei/pydify_plus)
+- [问题追踪](https://github.com/Mehaei/pydify_plus/issues)
+- [文档](https://github.com/Mehaei/pydify_plus#readme)

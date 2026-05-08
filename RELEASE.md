@@ -1,6 +1,6 @@
 # 发布指南
 
-本文档描述了如何发布 Dify Client 包到 PyPI。
+本文档描述了如何发布 pydify_plus 包到 PyPI。
 
 ## 发布流程
 
@@ -115,7 +115,7 @@ python scripts/bump_version.py major
 #### 发布后检查
 
 - [ ] 验证 PyPI 页面显示正确
-- [ ] 测试安装：`pip install dify-client`
+- [ ] 测试安装：`pip install pydify_plus`
 - [ ] 验证基本功能正常
 - [ ] 更新文档（如果需要）
 
@@ -148,7 +148,7 @@ python scripts/bump_version.py major
 python scripts/release.py 1.0.0 --test-pypi
 
 # 从 Test PyPI 安装测试
-pip install --index-url https://test.pypi.org/simple/ dify-client
+pip install --index-url https://test.pypi.org/simple/ pydify_plus
 ```
 
 ### 7. 自动化配置

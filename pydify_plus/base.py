@@ -36,8 +36,15 @@ class BaseClient(abc.ABC):
         if isinstance(api_key, str):
             api_key = {API_KEY_NAME: api_key}
 
-        if API_KEY_NAME not in api_key:
-            raise ValueError(f"{API_KEY_NAME} environment variable not set")
+        if API_KEY_NAME not in api_key or not api_key.get(API_KEY_NAME):
+            fallback_key = None
+            for _, v in api_key.items():
+                if v:
+                    fallback_key = v
+                    break
+            if not fallback_key:
+                raise ValueError("Dify API key is not set")
+            api_key[API_KEY_NAME] = fallback_key
 
         self.api_key = api_key
         self.timeout = timeout
@@ -51,9 +58,9 @@ class BaseClient(abc.ABC):
             A dictionary containing the Authorization and Content-Type headers.
         """
         api_key_name = api_key_name or API_KEY_NAME
-        api_key = self.api_key.get(api_key_name, None)
+        api_key = self.api_key.get(api_key_name) or self.api_key.get(API_KEY_NAME)
         if not api_key:
-            raise ValueError(f"{api_key_name} environment variable not set")
+            raise ValueError("Dify API key is not set")
         return {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"

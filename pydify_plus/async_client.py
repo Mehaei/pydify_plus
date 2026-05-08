@@ -45,7 +45,7 @@ class AsyncClient(BaseClient):
     def __init__(
         self,
         base_url: str,
-        api_key: str,
+        api_key: dict[str, str] | str,
         timeout: float = 30.0,
         retries: int = 3,
         retry_backoff_factor: float = 1.0,
@@ -56,7 +56,8 @@ class AsyncClient(BaseClient):
 
         Args:
             base_url: The base URL of the Dify API (e.g., "https://api.dify.ai").
-            api_key: Your Dify API key.
+            api_key: Your Dify API key, or a mapping of API key names to values. For example:
+                {"DIFY_API_KEY": "...", "DIFY_APP_KEY": "...", "DIFY_DATASET_KEY": "...", "DIFY_WORKFLOW_KEY": "..."}.
             timeout: Request timeout in seconds. Defaults to 30.0.
             retries: Number of retry attempts for failed requests. Defaults to 3.
             retry_backoff_factor: Backoff factor for retry delays. Defaults to 1.0.

@@ -187,8 +187,8 @@ pydify_plus/
 ## 📞 支持
 
 - **文档**: [查看文档](./docs/)
-- **问题**: [GitHub Issues](https://github.com/your-username/pydify_plus/issues)
-- **讨论**: [GitHub Discussions](https://github.com/your-username/pydify_plus/discussions)
+- **问题**: [GitHub Issues](https://github.com/Mehaei/pydify_plus/issues)
+- **讨论**: [GitHub Discussions](https://github.com/Mehaei/pydify_plus/discussions)
 
 ## 📄 许可证
 
@@ -196,7 +196,7 @@ pydify_plus/
 
 ---
 
-**🎯 项目状态**: ✅ 生产就绪
+**🎯 项目状态**: 🧪 Beta（部分能力需使用者自行验证）
 **📦 PyPI 包名**: `pydify_plus`
-**🐍 Python 版本**: 3.8+
-**⭐ GitHub**: [your-username/dify-client](https://github.com/your-username/dify-client)
+**🐍 Python 版本**: 3.10+
+**⭐ GitHub**: [Mehaei/pydify_plus](https://github.com/Mehaei/pydify_plus)
