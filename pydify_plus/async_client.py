@@ -341,3 +341,25 @@ class AsyncClient(BaseClient):
 
         # This should never happen, but just in case
         raise DifyAPIError("Streaming request failed after retries")
+
+    async def stream_request(
+        self,
+        method: str,
+        path: str,
+        *,
+        json: Optional[dict] = None,
+        params: Optional[dict] = None,
+        timeout: Optional[float] = None,
+        retries: Optional[int] = None,
+        api_key_name: Optional[str] = None,
+    ) -> AsyncIterator[ServerSentEvent]:
+        async for event in self._stream_request(
+            method,
+            path,
+            json=json,
+            params=params,
+            timeout=timeout,
+            retries=retries,
+            api_key_name=api_key_name,
+        ):
+            yield event

@@ -102,7 +102,13 @@ class ChatApi(BaseApi):
         payload = {"user": user}
         return await self.request("POST", API_ENDPOINTS["CHAT_MESSAGES_STOP"].format(task_id=task_id), json=payload)
 
-    async def stream_chat_message(self, *, messages: list, response_mode: str = "streaming", user: str = "abc-123", inputs: dict = None, **kwargs) -> AsyncIterator[ServerSentEvent]:
+    async def stream_chat_message(
+        self,
+        *,
+        model: str,
+        messages: list,
+        **kwargs,
+    ) -> AsyncIterator[ServerSentEvent]:
         """Create a streaming chat message using Server-Sent Events.
 
         Args:
@@ -113,28 +119,39 @@ class ChatApi(BaseApi):
         Yields:
             ServerSentEvent objects from the streaming response.
         """
-        # payload = {"response_mode": model, "messages": messages, "stream": True, **kwargs}
-        inputs = inputs or {}
-        payload = {
-            "inputs": inputs,
-            "query": messages,
-            "response_mode": response_mode,
-            # "conversation_id": "101b4c97-fc2e-463c-90b1-5261a4cdcafb",
-            "user": user,
-            # "files": [
-            #     {
-            #         "type": "image",
-            #         "transfer_method": "remote_url",
-            #         "url": "https://cloud.dify.ai/logo/logo-site.png"
-            #     }
-            # ],
-            "auto_generate_name": True
-        }
-        payload.update(kwargs)
-        async for event in self.stream_request("POST", API_ENDPOINTS["CHAT_MESSAGES_STREAM"], json=payload, api_key_name=self.API_KEY_NAME):
-            yield event
+        import httpx
 
-    def chat_message(self, *, messages: list, response_mode: str = "streaming", user: str = "abc-123", **kwargs) -> Iterator[ServerSentEvent]:
+        url = self._client._build_url(API_ENDPOINTS["CHAT_MESSAGES_STREAM"])
+        headers = self._client._build_headers(api_key_name=self.API_KEY_NAME)
+        payload = {"model": model, "messages": messages, **kwargs}
+
+        httpx_client = getattr(self._client, "_cli", None)
+        close_client = False
+        if httpx_client is None:
+            httpx_client = httpx.AsyncClient(base_url=self._client.base_url, timeout=self._client.timeout)
+            close_client = True
+
+        try:
+            async with aconnect_sse(
+                httpx_client,
+                "POST",
+                url,
+                headers=headers,
+                json=payload,
+            ) as event_source:
+                async for event in event_source.aiter_sse():
+                    yield event
+        finally:
+            if close_client:
+                await httpx_client.aclose()
+
+    def stream_chat_message_sync(
+        self,
+        *,
+        model: str,
+        messages: list,
+        **kwargs,
+    ) -> Iterator[ServerSentEvent]:
         """Create a streaming chat message using Server-Sent Events (synchronous version).
 
         Args:
@@ -145,21 +162,23 @@ class ChatApi(BaseApi):
         Yields:
             ServerSentEvent objects from the streaming response.
         """
-        # payload = {"response_mode": model, "messages": messages, "stream": True, **kwargs}
-        payload = {
-            "inputs": { "name": "dify" },
-            "query": messages,
-            "response_mode": response_mode,
-            # "conversation_id": "101b4c97-fc2e-463c-90b1-5261a4cdcafb",
-            "user": user,
-            # "files": [
-            #     {
-            #         "type": "image",
-            #         "transfer_method": "remote_url",
-            #         "url": "https://cloud.dify.ai/logo/logo-site.png"
-            #     }
-            # ],
-            "auto_generate_name": True
-        }
-        for event in self.stream_request("POST", API_ENDPOINTS["CHAT_MESSAGES_STREAM"], json=payload, api_key_name=self.API_KEY_NAME):
+        import httpx
+
+        url = self._client._build_url(API_ENDPOINTS["CHAT_MESSAGES_STREAM"])
+        headers = self._client._build_headers(api_key_name=self.API_KEY_NAME)
+        payload = {"model": model, "messages": messages, **kwargs}
+
+        with httpx.Client(base_url=self._client.base_url, timeout=self._client.timeout) as httpx_client:
+            with connect_sse(
+                httpx_client,
+                "POST",
+                url,
+                headers=headers,
+                json=payload,
+            ) as event_source:
+                for event in event_source.iter_sse():
+                    yield event
+
+    def chat_message(self, *, model: str, messages: list, **kwargs) -> Iterator[ServerSentEvent]:
+        for event in self.stream_chat_message_sync(model=model, messages=messages, **kwargs):
             yield event
