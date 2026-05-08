@@ -10,7 +10,7 @@ authors = [
     {name = "Mehaei", email = "pymehaei@gmail.com"},
 ]
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 license-files = []
 keywords = ["dify", "api", "client", "ai", "chat", "workflow"]
 classifiers = [
@@ -70,7 +70,7 @@ write_to = "pydify_plus/_version.py"
 write_to_template = "__version__ = \"{version}\"\n"
 
 [tool.semantic_release]
-branch = "main"
+branch = "master"
 commit_parser = "conventional"
 tag_format = "v{version}"
 version_toml = []
