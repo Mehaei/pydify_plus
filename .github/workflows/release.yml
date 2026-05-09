@@ -3,7 +3,6 @@ name: Release
 on:
   push:
     branches: [master, develop]
-    tags: ["v*"]
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -161,7 +160,8 @@ jobs:
           build: false
 
   deploy:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: [version]
+    if: needs.version.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -172,7 +172,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref }}
+          ref: ${{ needs.version.outputs.tag }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -194,5 +194,3 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
