@@ -20,7 +20,9 @@ class TextGenApi:
     def __init__(self, client):
         self.client = client
 
-    async def send(self, *, inputs: Dict[str, Any], user: Optional[str] = None) -> Dict[str, Any]:
+    async def send(
+        self, *, inputs: Dict[str, Any], user: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         发送文本生成请求。
 
@@ -31,7 +33,9 @@ class TextGenApi:
         payload = {"inputs": inputs}
         if user:
             payload["user"] = user
-        return await self.client._arequest("POST", API_ENDPOINTS["COMPLETION_MESSAGES_CREATE"], json=payload)
+        return await self.client._arequest(
+            "POST", API_ENDPOINTS["COMPLETION_MESSAGES_CREATE"], json=payload
+        )
 
     async def send_stream(self, *, inputs: Dict[str, Any], user: Optional[str] = None):
         """
@@ -40,11 +44,16 @@ class TextGenApi:
         payload = {"inputs": inputs}
         if user:
             payload["user"] = user
-        async for event in self.client.stream_request("POST", API_ENDPOINTS["COMPLETION_MESSAGES_STREAM"], json=payload):
+        async for event in self.client.stream_request(
+            "POST", API_ENDPOINTS["COMPLETION_MESSAGES_STREAM"], json=payload
+        ):
             yield event
 
     async def stop(self, message_id: str) -> Dict[str, Any]:
         """
         停止响应文本生成任务。
         """
-        return await self.client._arequest("POST", API_ENDPOINTS["COMPLETION_MESSAGES_STOP"].format(message_id=message_id))
+        return await self.client._arequest(
+            "POST",
+            API_ENDPOINTS["COMPLETION_MESSAGES_STOP"].format(message_id=message_id),
+        )

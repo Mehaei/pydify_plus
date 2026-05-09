@@ -20,16 +20,26 @@ class SessionsApi:
     def __init__(self, client):
         self.client = client
 
-    async def list(self, *, page: Optional[int] = None, limit: Optional[int] = None) -> Dict[str, Any]:
+    async def list(
+        self, *, page: Optional[int] = None, limit: Optional[int] = None
+    ) -> Dict[str, Any]:
         """获取会话列表。"""
         params = {}
         if page is not None:
             params["page"] = page
         if limit is not None:
             params["limit"] = limit
-        return await self.client._arequest("GET", API_ENDPOINTS["CONVERSATIONS_LIST"], params=params or None)
+        return await self.client._arequest(
+            "GET", API_ENDPOINTS["CONVERSATIONS_LIST"], params=params or None
+        )
 
-    async def history(self, conversation_id: str, *, page: Optional[int] = None, limit: Optional[int] = None) -> Dict[str, Any]:
+    async def history(
+        self,
+        conversation_id: str,
+        *,
+        page: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
         """获取会话历史消息。"""
         params = {}
         if page is not None:
@@ -38,18 +48,36 @@ class SessionsApi:
             params["limit"] = limit
         return await self.client._arequest(
             "GET",
-            API_ENDPOINTS["CONVERSATION_HISTORY"].format(conversation_id=conversation_id),
+            API_ENDPOINTS["CONVERSATION_HISTORY"].format(
+                conversation_id=conversation_id
+            ),
             params=params or None,
         )
 
     async def delete(self, conversation_id: str) -> Dict[str, Any]:
         """删除会话。"""
-        return await self.client._arequest("DELETE", API_ENDPOINTS["CONVERSATION_DELETE"].format(conversation_id=conversation_id))
+        return await self.client._arequest(
+            "DELETE",
+            API_ENDPOINTS["CONVERSATION_DELETE"].format(
+                conversation_id=conversation_id
+            ),
+        )
 
     async def rename(self, conversation_id: str, *, name: str) -> Dict[str, Any]:
         """会话重命名。"""
-        return await self.client._arequest("POST", API_ENDPOINTS["CONVERSATION_RENAME"].format(conversation_id=conversation_id), json={"name": name})
+        return await self.client._arequest(
+            "POST",
+            API_ENDPOINTS["CONVERSATION_RENAME"].format(
+                conversation_id=conversation_id
+            ),
+            json={"name": name},
+        )
 
     async def variables(self, conversation_id: str) -> Dict[str, Any]:
         """获取对话变量。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["CONVERSATION_VARIABLES"].format(conversation_id=conversation_id))
+        return await self.client._arequest(
+            "GET",
+            API_ENDPOINTS["CONVERSATION_VARIABLES"].format(
+                conversation_id=conversation_id
+            ),
+        )

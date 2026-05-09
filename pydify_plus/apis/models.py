@@ -22,4 +22,6 @@ class ModelsApi:
 
     async def list_embedding_models(self) -> Dict[str, Any]:
         """获取可用的嵌入模型列表。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["EMBEDDING_MODELS_LIST"])
+        return await self.client._arequest(
+            "GET", API_ENDPOINTS["EMBEDDING_MODELS_LIST"]
+        )

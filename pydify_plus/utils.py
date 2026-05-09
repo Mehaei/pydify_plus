@@ -1,5 +1,6 @@
 import os
-from typing import IO, Any, Dict, List, Tuple, Union
+from typing import IO, Dict, Tuple
+
 
 def prepare_files_for_httpx(file_path: str) -> Dict[str, Tuple[str, IO[bytes], str]]:
     """Prepare a file for uploading with httpx."""

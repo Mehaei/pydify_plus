@@ -69,7 +69,7 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 pydify_plus tests
+          flake8 --max-line-length 88 --extend-ignore E501 pydify_plus tests
 
       - name: Run mypy
         run: |

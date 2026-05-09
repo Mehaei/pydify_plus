@@ -22,28 +22,34 @@ class AppConfigApi:
 
     async def basic_info(self) -> Dict[str, Any]:
         """获取应用基本信息。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["APP_BASIC_INFO"]) 
+        return await self.client._arequest("GET", API_ENDPOINTS["APP_BASIC_INFO"])
 
     async def parameters(self) -> Dict[str, Any]:
         """获取应用参数。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["APP_PARAMETERS"]) 
+        return await self.client._arequest("GET", API_ENDPOINTS["APP_PARAMETERS"])
 
     async def meta(self) -> Dict[str, Any]:
         """获取应用 meta 信息。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["APP_META"]) 
+        return await self.client._arequest("GET", API_ENDPOINTS["APP_META"])
 
     async def webapp_settings(self) -> Dict[str, Any]:
         """获取应用 WebApp 设置。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["APP_WEBAPP_SETTINGS"]) 
+        return await self.client._arequest("GET", API_ENDPOINTS["APP_WEBAPP_SETTINGS"])
 
     async def workflow_basic_info(self) -> Dict[str, Any]:
         """获取应用基本信息（Workflow 版本）。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["WORKFLOW_APP_BASIC_INFO"]) 
+        return await self.client._arequest(
+            "GET", API_ENDPOINTS["WORKFLOW_APP_BASIC_INFO"]
+        )
 
     async def workflow_parameters(self) -> Dict[str, Any]:
         """获取应用参数（Workflow 版本）。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["WORKFLOW_APP_PARAMETERS"]) 
+        return await self.client._arequest(
+            "GET", API_ENDPOINTS["WORKFLOW_APP_PARAMETERS"]
+        )
 
     async def workflow_webapp_settings(self) -> Dict[str, Any]:
         """获取应用 WebApp 设置（Workflow 版本）。"""
-        return await self.client._arequest("GET", API_ENDPOINTS["WORKFLOW_APP_WEBAPP_SETTINGS"])
+        return await self.client._arequest(
+            "GET", API_ENDPOINTS["WORKFLOW_APP_WEBAPP_SETTINGS"]
+        )

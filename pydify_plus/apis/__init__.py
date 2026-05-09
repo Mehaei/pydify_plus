@@ -5,7 +5,20 @@
 # @LastEditors: 胖胖很瘦
 # @LastEditTime: 2025-11-11 16:18:58
 
-from . import chat, dataset, files, documents, blocks, tags, models, sessions, feedback, textgen, workflows, app_config
+from . import (
+    chat,
+    dataset,
+    files,
+    documents,
+    blocks,
+    tags,
+    models,
+    sessions,
+    feedback,
+    textgen,
+    workflows,
+    app_config,
+)
 
 __all__ = [
     "chat",

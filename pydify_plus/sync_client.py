@@ -6,6 +6,7 @@ from httpx_sse import connect_sse, ServerSentEvent
 from .base import BaseClient
 from .async_client import AsyncClient
 
+
 class Client(BaseClient):
     """Synchronous client for interacting with the Dify API.
 
@@ -34,7 +35,7 @@ class Client(BaseClient):
         retries: int = 3,
         retry_backoff_factor: float = 1.0,
         logger: Optional[logging.Logger] = None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the synchronous client.
 
@@ -55,7 +56,7 @@ class Client(BaseClient):
             retries=retries,
             retry_backoff_factor=retry_backoff_factor,
             logger=logger,
-            **kwargs
+            **kwargs,
         )
 
     def _arequest(
@@ -97,21 +98,21 @@ class Client(BaseClient):
         timeout: Optional[float] = None,
     ) -> Iterator[ServerSentEvent]:
         """Make a streaming request using Server-Sent Events (synchronous version).
-        
+
         Args:
             method: HTTP method (GET, POST, etc.)
             path: API endpoint path
             json: JSON payload for the request
             params: Query parameters
             timeout: Request timeout in seconds
-            
+
         Yields:
             ServerSentEvent objects from the streaming response.
         """
         # Use the async client's httpx client for the connection
         if not self._async_client._cli:
             anyio.run(self._async_client.__aenter__)
-        
+
         url = self._build_url(path)
         headers = self._build_headers()
         _timeout = timeout if timeout is not None else self.timeout

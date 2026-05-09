@@ -3,7 +3,7 @@
 # @Author: 胖胖很瘦
 # @Date: 2025-11-11
 # @LastEditors: 胖胖很瘦
-# @LastEditTime: 2025-12-18 11:42:24
+# @LastEditTime: 2026-05-09 09:51:32
 import json as JSON
 from typing import Any, Dict, Optional
 from .base import BaseApi
@@ -18,9 +18,17 @@ class DocumentsApi(BaseApi):
     面向知识库（数据集）下的文档增删改查与状态查询。
     支持从文本或文件创建/更新文档。
     """
+
     API_KEY_NAME = "DIFY_DATASET_KEY"
 
-    async def create_from_text(self, dataset_id: str, *, text: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def create_from_text(
+        self,
+        dataset_id: str,
+        *,
+        text: str,
+        title: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         通过文本创建文档。
 
@@ -44,7 +52,14 @@ class DocumentsApi(BaseApi):
             json=payload,
         )
 
-    async def create_from_file_path(self, dataset_id: str, *, file_path: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def create_from_file_path(
+        self,
+        dataset_id: str,
+        *,
+        file_path: str,
+        title: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         通过文件创建文档（文件路径）。
 
@@ -70,7 +85,20 @@ class DocumentsApi(BaseApi):
             json=data if data else None,
         )
 
-    async def create_from_file_bytes(self, dataset_id: str, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", doc_language: str = "Chinese Simplified", remove_extra_spaces: bool = True, remove_urls_emails: bool = True, segmentation_max_tokens: int = 520, segmentation_chunk_overlap: int = 50, metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    async def create_from_file_bytes(
+        self,
+        dataset_id: str,
+        *,
+        file_name: str,
+        content: bytes,
+        content_type: str = "application/octet-stream",
+        doc_language: str = "Chinese Simplified",
+        remove_extra_spaces: bool = True,
+        remove_urls_emails: bool = True,
+        segmentation_max_tokens: int = 520,
+        segmentation_chunk_overlap: int = 50,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         通过文件创建文档（内存字节流）。
 
@@ -101,15 +129,15 @@ class DocumentsApi(BaseApi):
                         {
                             "id": "remove_urls_emails",
                             "enabled": remove_urls_emails,
-                        }
+                        },
                     ],
                     "segmentation": {
                         "separator": "\n\n",
                         "max_tokens": segmentation_max_tokens,
-                        "chunk_overlap": segmentation_chunk_overlap
-                    }
+                        "chunk_overlap": segmentation_chunk_overlap,
+                    },
                 },
-                "mode": "custom"
+                "mode": "custom",
             },
             "doc_form": "text_model",
             "doc_language": doc_language,
@@ -119,25 +147,23 @@ class DocumentsApi(BaseApi):
                 "reranking_mode": "weighted_score",
                 "reranking_model": {
                     "reranking_provider_name": "",
-                    "reranking_model_name": ""
+                    "reranking_model_name": "",
                 },
                 "weights": {
                     "weight_type": "customized",
                     "vector_setting": {
                         "vector_weight": 0.7,
                         "embedding_provider_name": "",
-                        "embedding_model_name": ""
+                        "embedding_model_name": "",
                     },
-                    "keyword_setting": {
-                        "keyword_weight": 0.3
-                    }
+                    "keyword_setting": {"keyword_weight": 0.3},
                 },
                 "top_k": 2,
                 "score_threshold_enabled": False,
-                "score_threshold": None
+                "score_threshold": None,
             },
             "embedding_model": "",
-            "embedding_model_provider": ""
+            "embedding_model_provider": "",
         }
         if metadata and isinstance(metadata, dict):
             document_data.update(metadata)
@@ -146,10 +172,18 @@ class DocumentsApi(BaseApi):
             "POST",
             API_ENDPOINTS["DOCUMENTS_CREATE_FILE"].format(dataset_id=dataset_id),
             files=files,
-            data=data
+            data=data,
         )
 
-    async def update_text(self, dataset_id: str, document_id: str, *, text: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def update_text(
+        self,
+        dataset_id: str,
+        document_id: str,
+        *,
+        text: str,
+        title: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         用文本更新文档。
 
@@ -170,11 +204,21 @@ class DocumentsApi(BaseApi):
             payload["metadata"] = metadata
         return await self.request(
             "POST",
-            API_ENDPOINTS["DOCUMENTS_UPDATE_TEXT"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_UPDATE_TEXT"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
             json=payload,
         )
 
-    async def update_file_path(self, dataset_id: str, document_id: str, *, file_path: str, title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def update_file_path(
+        self,
+        dataset_id: str,
+        document_id: str,
+        *,
+        file_path: str,
+        title: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         用文件更新文档（文件路径）。
 
@@ -196,12 +240,24 @@ class DocumentsApi(BaseApi):
             data["metadata"] = metadata
         return await self.request(
             "POST",
-            API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
             files=files,
             json=data if data else None,
         )
 
-    async def update_file_bytes(self, dataset_id: str, document_id: str, *, file_name: str, content: bytes, content_type: str = "application/octet-stream", title: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def update_file_bytes(
+        self,
+        dataset_id: str,
+        document_id: str,
+        *,
+        file_name: str,
+        content: bytes,
+        content_type: str = "application/octet-stream",
+        title: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         用文件更新文档（内存字节流）。
 
@@ -225,7 +281,9 @@ class DocumentsApi(BaseApi):
             data["metadata"] = metadata
         return await self.request(
             "POST",
-            API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_UPDATE_FILE"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
             files=files,
             json=data if data else None,
         )
@@ -236,7 +294,9 @@ class DocumentsApi(BaseApi):
         """
         return await self.request(
             "GET",
-            API_ENDPOINTS["DOCUMENTS_EMBED_STATUS"].format(dataset_id=dataset_id, batch_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_EMBED_STATUS"].format(
+                dataset_id=dataset_id, batch_id=batch_id
+            ),
         )
 
     async def detail(self, dataset_id: str, document_id: str) -> Dict[str, Any]:
@@ -245,7 +305,9 @@ class DocumentsApi(BaseApi):
         """
         return await self.request(
             "GET",
-            API_ENDPOINTS["DOCUMENTS_DETAIL"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_DETAIL"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
         )
 
     async def delete(self, dataset_id: str, document_id: str) -> Dict[str, Any]:
@@ -254,10 +316,18 @@ class DocumentsApi(BaseApi):
         """
         return await self.request(
             "DELETE",
-            API_ENDPOINTS["DOCUMENTS_DELETE"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_DELETE"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
         )
 
-    async def list(self, dataset_id: str, *, page: Optional[int] = None, limit: Optional[int] = None) -> Dict[str, Any]:
+    async def list(
+        self,
+        dataset_id: str,
+        *,
+        page: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
         """
         获取知识库的文档列表。
         """
@@ -272,7 +342,9 @@ class DocumentsApi(BaseApi):
             params=params or None,
         )
 
-    async def update_status(self, dataset_id: str, document_id: str, *, status: str) -> Dict[str, Any]:
+    async def update_status(
+        self, dataset_id: str, document_id: str, *, status: str
+    ) -> Dict[str, Any]:
         """
         更新文档状态。
 
@@ -282,6 +354,8 @@ class DocumentsApi(BaseApi):
         payload = {"status": status}
         return await self.request(
             "POST",
-            API_ENDPOINTS["DOCUMENTS_UPDATE_STATUS"].format(dataset_id=dataset_id, document_id=document_id),
+            API_ENDPOINTS["DOCUMENTS_UPDATE_STATUS"].format(
+                dataset_id=dataset_id, document_id=document_id
+            ),
             json=payload,
         )

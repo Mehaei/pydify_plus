@@ -21,7 +21,9 @@ class FilesApi:
     def __init__(self, client):
         self.client = client
 
-    async def upload_file_path(self, file_path: str, *, purpose: Optional[str] = None) -> Dict[str, Any]:
+    async def upload_file_path(
+        self, file_path: str, *, purpose: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         通过文件路径上传文件。
 
@@ -41,7 +43,14 @@ class FilesApi:
             params=params,
         )
 
-    async def upload_file_bytes(self, filename: str, data: bytes, *, content_type: Optional[str] = None, purpose: Optional[str] = None) -> Dict[str, Any]:
+    async def upload_file_bytes(
+        self,
+        filename: str,
+        data: bytes,
+        *,
+        content_type: Optional[str] = None,
+        purpose: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         通过内存字节流上传文件。
 

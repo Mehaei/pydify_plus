@@ -5,13 +5,28 @@
 # @LastEditors: 胖胖很瘦
 # @LastEditTime: 2025-11-25 18:01:58
 
-import abc, uuid
+import abc
+import uuid
 from typing import Any, Optional
 
-from .apis import chat, dataset, files, documents, blocks, tags, models, sessions, feedback, textgen, workflows, app_config
+from .apis import (
+    chat,
+    dataset,
+    files,
+    documents,
+    blocks,
+    tags,
+    models,
+    sessions,
+    feedback,
+    textgen,
+    workflows,
+    app_config,
+)
 
 
 API_KEY_NAME = "DIFY_API_KEY"
+
 
 class BaseClient(abc.ABC):
     """Abstract base class for Dify clients.
@@ -22,7 +37,15 @@ class BaseClient(abc.ABC):
 
     Subclasses must implement the `_arequest` abstract method.
     """
-    def __init__(self, base_url: str, api_key: dict[str, str] | str, timeout: float = 30.0, retries: int = 3, **kwargs):
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: dict[str, str] | str,
+        timeout: float = 30.0,
+        retries: int = 3,
+        **kwargs,
+    ):
         """Initialize the base client.
 
         Args:
@@ -63,7 +86,7 @@ class BaseClient(abc.ABC):
             raise ValueError("Dify API key is not set")
         return {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def _build_request_id(self) -> str:
@@ -73,7 +96,6 @@ class BaseClient(abc.ABC):
             A string representing a unique request ID.
         """
         return str(uuid.uuid4())
-
 
     def _build_url(self, path: str) -> str:
         """Build the full URL for an API endpoint.

@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field, ConfigDict
@@ -6,6 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class MessageRole(str, Enum):
     """Role of a message in a conversation."""
+
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
@@ -13,6 +13,7 @@ class MessageRole(str, Enum):
 
 class DocumentStatus(str, Enum):
     """Status of a document in the dataset."""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -21,10 +22,12 @@ class DocumentStatus(str, Enum):
 
 class WorkflowExecutionStatus(str, Enum):
     """Status of a workflow execution."""
+
     RUNNING = "running"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     STOPPED = "stopped"
+
 
 class ChatMessage(BaseModel):
     """A single message in a conversation."""
@@ -39,11 +42,15 @@ class CreateChatMessageRequest(BaseModel):
     """Request model for creating a chat message."""
 
     model: str = Field(..., description="The model to use for the chat")
-    messages: List[ChatMessage] = Field(..., description="List of messages in the conversation")
+    messages: List[ChatMessage] = Field(
+        ..., description="List of messages in the conversation"
+    )
     conversation_id: Optional[str] = Field(None, description="ID of the conversation")
     user: Optional[str] = Field(None, description="User identifier")
     stream: Optional[bool] = Field(False, description="Whether to stream the response")
-    inputs: Optional[Dict[str, Any]] = Field(None, description="Additional input variables")
+    inputs: Optional[Dict[str, Any]] = Field(
+        None, description="Additional input variables"
+    )
     query: Optional[str] = Field(None, description="User query for retrieval")
     files: Optional[List[str]] = Field(None, description="List of file IDs")
 
@@ -54,7 +61,9 @@ class CreateDatasetRequest(BaseModel):
     name: str = Field(..., description="Name of the dataset")
     description: Optional[str] = Field(None, description="Description of the dataset")
     permission: Optional[str] = Field("only_me", description="Dataset permission level")
-    indexing_technique: Optional[str] = Field("high_quality", description="Indexing technique to use")
+    indexing_technique: Optional[str] = Field(
+        "high_quality", description="Indexing technique to use"
+    )
 
 
 class UploadFileResponse(BaseModel):
@@ -94,7 +103,9 @@ class DocumentResponse(BaseModel):
     dataset_id: str = Field(..., description="Dataset ID")
     position: int = Field(..., description="Document position")
     data_source_type: str = Field(..., description="Data source type")
-    data_source_info: Optional[Dict[str, Any]] = Field(None, description="Data source information")
+    data_source_info: Optional[Dict[str, Any]] = Field(
+        None, description="Data source information"
+    )
     dataset_process_rule_id: Optional[str] = Field(None, description="Process rule ID")
     name: str = Field(..., description="Document name")
     created_from: str = Field(..., description="Creation source")
@@ -104,7 +115,9 @@ class DocumentResponse(BaseModel):
     indexing_status: str = Field(..., description="Indexing status")
     enabled: bool = Field(..., description="Whether the document is enabled")
     disabled_at: Optional[int] = Field(None, description="Disable timestamp")
-    disabled_by: Optional[str] = Field(None, description="User who disabled the document")
+    disabled_by: Optional[str] = Field(
+        None, description="User who disabled the document"
+    )
     archived: bool = Field(..., description="Whether the document is archived")
     display_status: str = Field(..., description="Display status")
     word_count: Optional[int] = Field(None, description="Word count")
@@ -156,13 +169,17 @@ class AppConfigResponse(BaseModel):
     mode: str = Field(..., description="App mode (chat/completion/workflow)")
     icon: Optional[str] = Field(None, description="App icon")
     icon_background: Optional[str] = Field(None, description="Icon background color")
-    show_workflow_steps: bool = Field(False, description="Whether to show workflow steps")
+    show_workflow_steps: bool = Field(
+        False, description="Whether to show workflow steps"
+    )
     enable_speech: bool = Field(False, description="Whether speech is enabled")
     enable_video: bool = Field(False, description="Whether video is enabled")
     enable_upload: bool = Field(False, description="Whether file upload is enabled")
     copyright: Optional[str] = Field(None, description="Copyright information")
     privacy_policy: Optional[str] = Field(None, description="Privacy policy")
     custom_disclaimer: Optional[str] = Field(None, description="Custom disclaimer")
-    sensitive_word_avoidance_enabled: bool = Field(False, description="Sensitive word avoidance")
+    sensitive_word_avoidance_enabled: bool = Field(
+        False, description="Sensitive word avoidance"
+    )
     created_at: int = Field(..., description="Creation timestamp")
     updated_at: int = Field(..., description="Last update timestamp")

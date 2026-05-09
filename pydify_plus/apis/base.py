@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Dict, Any, List, AsyncIterator
+from typing import TYPE_CHECKING, AsyncIterator
 
 
 if TYPE_CHECKING:
@@ -7,8 +7,10 @@ if TYPE_CHECKING:
 
 class BaseApi:
     API_KEY_NAME = "DIFY_API_KEY"
+
     def __init__(self, client: "BaseClient"):
         self._client = client
+
     async def request(self, *args, **kwargs) -> dict:
         if "api_key_name" not in kwargs:
             kwargs["api_key_name"] = self.API_KEY_NAME

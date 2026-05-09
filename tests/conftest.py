@@ -1,7 +1,6 @@
 """Pytest configuration and fixtures for Dify Client tests."""
 
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, Mock
 from typing import Dict, Any
 
@@ -16,7 +15,7 @@ def mock_response():
         status_code: int = 200,
         json_data: Dict[str, Any] = None,
         text: str = None,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
     ):
         mock_resp = Mock()
         mock_resp.status_code = status_code
@@ -65,7 +64,7 @@ def sample_chat_messages():
     """Fixture for sample chat messages."""
     return [
         {"role": "user", "content": "Hello, how are you?"},
-        {"role": "assistant", "content": "I'm doing well, thank you!"}
+        {"role": "assistant", "content": "I'm doing well, thank you!"},
     ]
 
 
@@ -85,7 +84,7 @@ def sample_dataset_data():
         "word_count": 0,
         "created_by": "user-123",
         "created_at": 1234567890,
-        "updated_at": 1234567890
+        "updated_at": 1234567890,
     }
 
 
@@ -112,7 +111,7 @@ def sample_document_data():
         "display_status": "available",
         "word_count": 50,
         "hit_count": 10,
-        "segment_count": 5
+        "segment_count": 5,
     }
 
 
@@ -129,7 +128,7 @@ def sample_workflow_execution_data():
         "total_steps": 3,
         "finished_steps": 3,
         "created_at": 1234567890,
-        "finished_at": 1234567891
+        "finished_at": 1234567891,
     }
 
 
@@ -143,16 +142,8 @@ def sample_file_upload_data():
         "type": "text/plain",
         "created_at": 1234567890,
         "extension": ".txt",
-        "mime_type": "text/plain"
+        "mime_type": "text/plain",
     }
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 # Test data factories
@@ -168,7 +159,7 @@ class TestDataFactory:
             "query": "Hello",
             "answer": "Hi there!",
             "message_files": [],
-            "created_at": 1234567890
+            "created_at": 1234567890,
         }
 
     @staticmethod
@@ -177,7 +168,7 @@ class TestDataFactory:
         return {
             "code": f"HTTP_{status_code}",
             "message": "An error occurred",
-            "status": status_code
+            "status": status_code,
         }
 
     @staticmethod
@@ -188,5 +179,5 @@ class TestDataFactory:
             "has_more": has_more,
             "limit": len(data),
             "total": len(data),
-            "page": 1
+            "page": 1,
         }

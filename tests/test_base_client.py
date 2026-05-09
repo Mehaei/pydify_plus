@@ -1,10 +1,8 @@
 """Tests for base client functionality."""
 
 import pytest
-from unittest.mock import Mock, patch
 
 from pydify_plus.base import BaseClient
-from pydify_plus.errors import DifyError
 
 
 class TestBaseClient:
@@ -17,7 +15,7 @@ class TestBaseClient:
             base_url="https://api.dify.ai",
             api_key="test-api-key",
             timeout=30.0,
-            retries=3
+            retries=3,
         )
 
         assert client.base_url == "https://api.dify.ai"
@@ -26,41 +24,35 @@ class TestBaseClient:
         assert client.retries == 3
 
         # Check that API modules are attached
-        assert hasattr(client, 'chat')
-        assert hasattr(client, 'dataset')
-        assert hasattr(client, 'files')
-        assert hasattr(client, 'documents')
-        assert hasattr(client, 'blocks')
-        assert hasattr(client, 'tags')
-        assert hasattr(client, 'models')
-        assert hasattr(client, 'sessions')
-        assert hasattr(client, 'feedback')
-        assert hasattr(client, 'textgen')
-        assert hasattr(client, 'workflows')
-        assert hasattr(client, 'app_config')
+        assert hasattr(client, "chat")
+        assert hasattr(client, "dataset")
+        assert hasattr(client, "files")
+        assert hasattr(client, "documents")
+        assert hasattr(client, "blocks")
+        assert hasattr(client, "tags")
+        assert hasattr(client, "models")
+        assert hasattr(client, "sessions")
+        assert hasattr(client, "feedback")
+        assert hasattr(client, "textgen")
+        assert hasattr(client, "workflows")
+        assert hasattr(client, "app_config")
 
     def test_build_headers(self):
         """Test header construction."""
         client = BaseClient.__new__(BaseClient)
-        client.__init__(
-            base_url="https://api.dify.ai",
-            api_key="test-api-key"
-        )
+        client.__init__(base_url="https://api.dify.ai", api_key="test-api-key")
 
         headers = client._build_headers()
 
         assert headers == {
             "Authorization": "Bearer test-api-key",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def test_build_url(self):
         """Test URL construction."""
         client = BaseClient.__new__(BaseClient)
-        client.__init__(
-            base_url="https://api.dify.ai",
-            api_key="test-api-key"
-        )
+        client.__init__(base_url="https://api.dify.ai", api_key="test-api-key")
 
         # Test with base URL having trailing slash
         url1 = client._build_url("/v1/chat-messages")
@@ -78,10 +70,7 @@ class TestBaseClient:
     def test_abstract_method(self):
         """Test that _arequest is abstract."""
         client = BaseClient.__new__(BaseClient)
-        client.__init__(
-            base_url="https://api.dify.ai",
-            api_key="test-api-key"
-        )
+        client.__init__(base_url="https://api.dify.ai", api_key="test-api-key")
 
         # _arequest should raise NotImplementedError
         with pytest.raises(NotImplementedError):
@@ -94,7 +83,7 @@ class TestBaseClient:
             base_url="https://custom.dify.ai",
             api_key="custom-key",
             timeout=60.0,
-            retries=5
+            retries=5,
         )
 
         assert client.base_url == "https://custom.dify.ai"
@@ -109,7 +98,7 @@ class TestBaseClient:
             api_key={
                 "DIFY_API_KEY": "default-key",
                 "DIFY_DATASET_KEY": "dataset-key",
-            }
+            },
         )
 
         headers = client._build_headers(api_key_name="DIFY_DATASET_KEY")
@@ -124,6 +113,6 @@ class TestBaseClient:
             base_url="https://api.dify.ai",
             api_key={
                 "DIFY_DATASET_KEY": "dataset-key",
-            }
+            },
         )
         assert client.api_key["DIFY_API_KEY"] == "dataset-key"
