@@ -21,6 +21,7 @@ class WorkflowsApi(BaseApi):
     API_KEY_NAME = "DIFY_WORKFLOW_KEY"
 
     def __init__(self, client):
+        super().__init__(client)
         self.client = client
 
     async def execute(
